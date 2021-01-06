@@ -9,18 +9,15 @@ const app = express();
 app.use(cors());
 //base de datos
 dbConnection();
+//lectura y parseo del body
+app.use(express.json());
+// rutas
+app.use('/api/alumnos', require('./routes/alumnos'));
+app.use('/api/prueba', require('./routes/prueba'));
 
-console.log(process.env);
 
-//rutas 
-app.get('/', (req, res) => {
 
-    res.json({
-        ok: true,
-        msg: 'Hola a todos'
-    });
 
-});
 app.listen(process.env.PORT, () => {
     console.log(`Servidor corriendo en el puerto ${process.env.PORT}`);
 });
