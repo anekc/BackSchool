@@ -10,6 +10,7 @@ const router = Router();
 
 router.get('/', getAlumnos);
 
+
 router.post('/', addAlumno);
 
 

@@ -1,27 +1,38 @@
-const oracledb = require('oracledb');
+//funcion para agregar elementos a la base de datos con insert to
 
-const dbConfig = require('../database/dbconfig');
-
-
-const pruebaAlumnos = async(req, res) => {
+const addAlumno = async(req, res) => {
 
     let connection;
 
     try {
+        // hace la conexion a la base de datos 
         connection = await oracledb.getConnection(dbConfig);
-        const result = await connection.execute(
-            `SELECT NOMBRE, APELLIDO_MAT,EDAD
-       FROM ALUMNO`
-        );
+        // variables sql y binds para ejecucion
+        const sql = (`INSERT INTO ALUMNO VALUES (:ID_ALUMNO, :NOMBRE,:APELLIDO_PAT, :APELLIDO_MAT,:EDAD,:CORREO_ELECTRONICO, :AL_ID_DIRECCION, :AL_ID_SEXO)`);
+        //desestruturar propiedades desde el body
+        const { id, name, lastname, surname, age, email, id_dir, id_sex } = req.body;
+        const binds = [id, name, lastname, surname, age, email, id_dir, id_sex];
+
+        // ejecuta la funcion SQL
+        const result = await connection.execute(sql, binds, { autoCommit: true });
+
+
+        // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Alumnos cargados correctamente',
-            result
+            msg: 'Alumno agregado correctamente'
+
+
 
         }));
 
     } catch (err) {
         console.error(err);
+        res.status(500).json({
+            ok: false,
+            msg: ` Error inesperado revisar logs `
+
+        });
     } finally {
         if (connection) {
             try {
@@ -32,6 +43,9 @@ const pruebaAlumnos = async(req, res) => {
         }
     }
 };
+
+
+// funcion para agregar con procedimientos almacenados
 
 const addPruebaAlumnos = async(req, res) => {
 
@@ -50,26 +64,18 @@ const addPruebaAlumnos = async(req, res) => {
         BEGIN
         agregarAlumno(:n,:ln,:sn,:age,:dir, :sex);
         END;`, {
-                n: name,
-                ln: lastname,
-                sn: surname,
-                age: age,
-                dir: id_dir,
-                sex: id_sex
-            }
-
-
-        );
-
-
+            n: name,
+            ln: lastname,
+            sn: surname,
+            age: age,
+            dir: id_dir,
+            sex: id_sex
+        });
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
             msg: 'Alumno agregado correctamente',
             result
-
-
-
         }));
 
     } catch (err) {
@@ -89,13 +95,4 @@ const addPruebaAlumnos = async(req, res) => {
             }
         }
     }
-};
-
-
-
-
-
-module.exports = {
-    pruebaAlumnos,
-    addPruebaAlumnos
 };

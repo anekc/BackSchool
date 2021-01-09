@@ -10,7 +10,7 @@ const dbConfig = require('../database/dbconfig');
 
 //  función para obtener los alumnos desde la base de datos 
 
-const getAlumnos = async(req, res) => {
+const getTrabajador = async(req, res) => {
 
     let connection;
 
@@ -24,12 +24,12 @@ const getAlumnos = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select nombre, apellido_mat, edad
-            from alumno`);
+            `select id_empleado , nombre, apellido_mat, edad, departamento
+            from empleado`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Alumnos cargados correctamente',
+            msg: 'Empleados cargados correctamente',
             result
 
         }));
@@ -48,36 +48,32 @@ const getAlumnos = async(req, res) => {
 };
 
 
-const addAlumno = async(req, res) => {
+const addTrabajador = async(req, res) => {
 
     let connection;
 
     try {
         // hace la conexion a la base de datos 
         connection = await oracledb.getConnection(dbConfig);
-        // variables sql y binds para ejecucion
-        const { name, lastname, surname, age, id_dir, id_sex } = req.body;
-
+        const { name, lastname, surname, age, dep, id_dir, id_sex, id_turno } = req.body;
         // ejecuta la funcion SQL
         const result = await connection.execute(`
         BEGIN
-        agregarAlumno(:n,:ln,:sn,:age,:dir, :sex);
+        agregarEmpleado(:n,:ln,:sn,:age,:dep,:dir, :sex, :turno);
         END;`, {
             n: name,
             ln: lastname,
             sn: surname,
             age: age,
+            dep: dep,
             dir: id_dir,
-            sex: id_sex
+            sex: id_sex,
+            turno: id_turno
         });
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Alumno agregado correctamente',
-            result,
-            exi
-
-
+            msg: 'Empleado agregado correctamente'
 
         }));
 
@@ -85,7 +81,7 @@ const addAlumno = async(req, res) => {
         console.error(err);
         res.status(500).json({
             ok: false,
-            msg: ` Error inesperado revisar logs `
+            msg: `Razón del error ${err}`
 
         });
     } finally {
@@ -105,6 +101,6 @@ const addAlumno = async(req, res) => {
 
 
 module.exports = {
-    getAlumnos,
-    addAlumno
+    getTrabajador,
+    addTrabajador
 };
