@@ -10,7 +10,7 @@ const dbConfig = require('../database/dbconfig');
 
 //  función para obtener los alumnos desde la base de datos 
 
-const getTrabajador = async(req, res) => {
+const getMaterias = async(req, res) => {
 
     let connection;
 
@@ -24,12 +24,12 @@ const getTrabajador = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select id_empleado , nombre, apellido_mat, edad, departamento
-            from empleado`);
+            `select nombre_materia
+            from materia`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Empleados cargados correctamente',
+            msg: 'Materias disponibles cargadas correctamente',
             result
 
         }));
@@ -48,32 +48,32 @@ const getTrabajador = async(req, res) => {
 };
 
 
-const addTrabajador = async(req, res) => {
+const addMateria = async(req, res) => {
 
     let connection;
 
     try {
         // hace la conexion a la base de datos 
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, dep, id_dir, id_sex, id_turno } = req.body;
+        // variables sql y binds para ejecucion
+        const { nombre_materia, id_cal } = req.body;
+        sql = `BEGIN
+        agregarMateria(:n,:id_cal);
+        END;`;
+        binds = {
+            n: nombre_materia,
+            id_cal: id_cal
+        };
+
         // ejecuta la funcion SQL
-        const result = await connection.execute(`
-        BEGIN
-        agregarEmpleado(:n,:ln,:sn,:age,:dep,:dir, :sex, :turno);
-        END;`, {
-            n: name,
-            ln: lastname,
-            sn: surname,
-            age: age,
-            dep: dep,
-            dir: id_dir,
-            sex: id_sex,
-            turno: id_turno
-        });
+        const result = await connection.execute(sql, binds);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Empleado agregado correctamente'
+            msg: 'Alumno agregado correctamente',
+            result
+
+
 
         }));
 
@@ -81,7 +81,7 @@ const addTrabajador = async(req, res) => {
         console.error(err);
         res.status(500).json({
             ok: false,
-            msg: `Razón del error ${err}`
+            msg: ` Error inesperado revisar logs `
 
         });
     } finally {
@@ -95,30 +95,23 @@ const addTrabajador = async(req, res) => {
     }
 };
 
-const actualizarEmpleado = async(req, res) => {
+const actulizarMateria = async(req, res) => {
 
     let connection;
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, dep, email, id_dir, id_sex, id_turno } = req.body;
+        const { nombre_materia, id_cal } = req.body;
 
-        const result = await connection.execute(`UPDATE empleado
-        SET nombre = :1,
-        apellido_pat = :2,
-        apellido_mat = :3,
-        edad = :4,
-        departamento = :9,
-        correo_electronico = :8,
-        emp_id_direccion= :5,
-        emp_id_sexo = :6 ,
-        emp_id_turno = :10
-        where id_empleado = :7`, [name, lastname, surname, age, dep, email, id_dir, id_sex, id_turno, uid], {
+        const result = await connection.execute(`UPDATE materia
+        SET nombre_materia = :1,
+        mat_id_cal = :2
+        where id_materia = :3`, [nombre_materia, id_cal, uid], {
             autoCommit: true
         });
         res.json({
             ok: true,
-            msg: `Trabajador actualizado`,
+            msg: `Materia actualizada`,
             uid
         });
 
@@ -135,7 +128,7 @@ const actualizarEmpleado = async(req, res) => {
 };
 
 
-const eliminarEmpleado = async(req, res) => {
+const eliminarMateria = async(req, res) => {
     let connection;
 
     const uid = req.params.id;
@@ -144,7 +137,7 @@ const eliminarEmpleado = async(req, res) => {
         connection = await oracledb.getConnection(dbConfig);
 
         const result = await connection.execute(
-            `delete from empleado where id_empleado =:id`, [uid], { autoCommit: true }
+            `delete from materia where id_materia =:id`, [uid], { autoCommit: true }
 
         );
 
@@ -171,8 +164,8 @@ const eliminarEmpleado = async(req, res) => {
 
 
 module.exports = {
-    getTrabajador,
-    addTrabajador,
-    actualizarEmpleado,
-    eliminarEmpleado
+    getMaterias,
+    addMateria,
+    actulizarMateria,
+    eliminarMateria
 };

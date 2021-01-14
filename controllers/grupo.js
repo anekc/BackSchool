@@ -10,7 +10,7 @@ const dbConfig = require('../database/dbconfig');
 
 //  función para obtener los alumnos desde la base de datos 
 
-const getTrabajador = async(req, res) => {
+const getGrupo = async(req, res) => {
 
     let connection;
 
@@ -24,12 +24,12 @@ const getTrabajador = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select id_empleado , nombre, apellido_mat, edad, departamento
-            from empleado`);
+            `select grupo
+            from grupo`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Empleados cargados correctamente',
+            msg: 'grupos disponibles cargados correctamente',
             result
 
         }));
@@ -48,32 +48,34 @@ const getTrabajador = async(req, res) => {
 };
 
 
-const addTrabajador = async(req, res) => {
+const addGrupo = async(req, res) => {
 
     let connection;
 
     try {
         // hace la conexion a la base de datos 
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, dep, id_dir, id_sex, id_turno } = req.body;
+        // variables sql y binds para ejecucion
+        const { grupo, carrera, semestre, turno } = req.body;
+        sql = `BEGIN
+        agregarGrupo(:n,:c,:s,:t);
+        END;`;
+        binds = {
+            n: grupo,
+            c: carrera,
+            s: semestre,
+            t: turno
+        };
+
         // ejecuta la funcion SQL
-        const result = await connection.execute(`
-        BEGIN
-        agregarEmpleado(:n,:ln,:sn,:age,:dep,:dir, :sex, :turno);
-        END;`, {
-            n: name,
-            ln: lastname,
-            sn: surname,
-            age: age,
-            dep: dep,
-            dir: id_dir,
-            sex: id_sex,
-            turno: id_turno
-        });
+        const result = await connection.execute(sql, binds);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
-            msg: 'Empleado agregado correctamente'
+            msg: 'Grupo agregado correctamente',
+            result
+
+
 
         }));
 
@@ -81,7 +83,7 @@ const addTrabajador = async(req, res) => {
         console.error(err);
         res.status(500).json({
             ok: false,
-            msg: `Razón del error ${err}`
+            msg: ` Error inesperado revisar logs `
 
         });
     } finally {
@@ -95,30 +97,25 @@ const addTrabajador = async(req, res) => {
     }
 };
 
-const actualizarEmpleado = async(req, res) => {
+const actualizarGrupo = async(req, res) => {
 
     let connection;
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, dep, email, id_dir, id_sex, id_turno } = req.body;
+        const { grupo, carrera, semestre, turno } = req.body;
 
-        const result = await connection.execute(`UPDATE empleado
-        SET nombre = :1,
-        apellido_pat = :2,
-        apellido_mat = :3,
-        edad = :4,
-        departamento = :9,
-        correo_electronico = :8,
-        emp_id_direccion= :5,
-        emp_id_sexo = :6 ,
-        emp_id_turno = :10
-        where id_empleado = :7`, [name, lastname, surname, age, dep, email, id_dir, id_sex, id_turno, uid], {
+        const result = await connection.execute(`UPDATE grupo
+        SET grupo = :1,
+        gr_id_carrera = :2,
+        gr_id_semestre = :3,
+        gr_id_turno = :4
+        where id_grupo = :5`, [grupo, carrera, semestre, turno, uid], {
             autoCommit: true
         });
         res.json({
             ok: true,
-            msg: `Trabajador actualizado`,
+            msg: `Grupo actualizado`,
             uid
         });
 
@@ -135,7 +132,7 @@ const actualizarEmpleado = async(req, res) => {
 };
 
 
-const eliminarEmpleado = async(req, res) => {
+const eliminarGrupo = async(req, res) => {
     let connection;
 
     const uid = req.params.id;
@@ -144,14 +141,14 @@ const eliminarEmpleado = async(req, res) => {
         connection = await oracledb.getConnection(dbConfig);
 
         const result = await connection.execute(
-            `delete from empleado where id_empleado =:id`, [uid], { autoCommit: true }
+            `delete from grupo where id_grupo =:id`, [uid], { autoCommit: true }
 
         );
 
         res.json({
 
             ok: true,
-            msg: 'eliminado correctamente ',
+            msg: 'grupo eliminado correctamente ',
             uid
         });
 
@@ -166,13 +163,15 @@ const eliminarEmpleado = async(req, res) => {
     }
 };
 
+
+
 // consulta SQL
 
 
 
 module.exports = {
-    getTrabajador,
-    addTrabajador,
-    actualizarEmpleado,
-    eliminarEmpleado
+    getGrupo,
+    addGrupo,
+    actualizarGrupo,
+    eliminarGrupo
 };

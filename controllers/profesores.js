@@ -98,7 +98,77 @@ const addProfesor = async(req, res) => {
     }
 };
 
+const actulizarProfesor = async(req, res) => {
+
+    let connection;
+    const uid = req.params.id;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const { name, lastname, surname, age, email, id_dir, id_sex } = req.body;
+
+        const result = await connection.execute(`UPDATE profesor
+        SET nombre = :1,
+        apellido_pat = :2,
+        apellido_mat = :3,
+        edad = :4,
+        correo_electronico = :8,
+        pr_id_direccion= :5,
+        pr_id_sexo = :6 
+        where id_profesor = :7`, [name, lastname, surname, age, email, id_dir, id_sex, uid], {
+            autoCommit: true
+        });
+        res.json({
+            ok: true,
+            msg: `Profesor actualizado`,
+            uid
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: `
+                        Error inesperado revisar logs `
+        });
+
+    }
+
+};
+
+const eliminarProfesor = async(req, res) => {
+    let connection;
+
+    const uid = req.params.id;
+
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+
+        const result = await connection.execute(
+            `delete from profesor where id_profesor =:id`, [uid], { autoCommit: true }
+
+        );
+
+        res.json({
+
+            ok: true,
+            msg: 'Proesor eliminado correctamente ',
+            uid
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: `
+                    Error inesperado revisar logs `
+        });
+
+    }
+};
+
 module.exports = {
     getProfesor,
-    addProfesor
+    addProfesor,
+    actulizarProfesor,
+    eliminarProfesor
 };
