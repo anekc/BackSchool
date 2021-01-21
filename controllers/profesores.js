@@ -24,7 +24,7 @@ const getProfesor = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select id_profesor, nombre, apellido_mat, edad
+            `select id_profesor, nombre, apellido_mat, edad, correo_electronico
             from profesor`);
         // respuesta de la base de datos en formato json
         console.log(res.json({

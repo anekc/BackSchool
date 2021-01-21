@@ -24,7 +24,7 @@ const getTrabajador = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select id_empleado , nombre, apellido_mat, edad, departamento
+            `select id_empleado , nombre, apellido_mat, edad,correo_electronico, departamento
             from empleado`);
         // respuesta de la base de datos en formato json
         console.log(res.json({

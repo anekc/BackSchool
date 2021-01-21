@@ -6,7 +6,7 @@ const dbConfig = require('../database/dbconfig');
 
 // formato de salida
 // To do ver como poder mostrar esta info en el front
-// oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
+oracledb.outFormat = oracledb.OUT_FORMAT_ARRAY;
 
 //  función para obtener los alumnos desde la base de datos 
 
@@ -24,15 +24,17 @@ const getAlumnos = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select nombre, apellido_mat, edad
+            `select id_alumno, nombre,apellido_pat, apellido_mat, edad ,correo_electronico
             from alumno`);
         // respuesta de la base de datos en formato json
+        // rslt = JSON.stringify(result);
+        // res.json(JSON.parse(rslt));
         console.log(res.json({
-            ok: true,
-            msg: 'Alumnos cargados correctamente',
             result
 
         }));
+
+
 
     } catch (err) {
         console.error(err);
@@ -58,7 +60,7 @@ const addAlumno = async(req, res) => {
         // variables sql y binds para ejecucion
         const { name, lastname, surname, age, id_dir, id_sex } = req.body;
         sql = `BEGIN
-        agregarAlumno(:n,:ln,:sn,:age,:dir, :sex);
+        agregarAlumno(:n,:ln,:sn,:age,:dir, :sex); 
         END;`;
         binds = {
             n: name,
@@ -70,12 +72,12 @@ const addAlumno = async(req, res) => {
         };
 
         // ejecuta la funcion SQL
-        const result = await connection.execute(sql, binds);
+        const alumnos = await connection.execute(sql, binds);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,
             msg: 'Alumno agregado correctamente',
-            result
+            alumnos
 
 
 
@@ -105,17 +107,15 @@ const actulizarAlumno = async(req, res) => {
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, email, id_dir, id_sex } = req.body;
+        const { name, lastname, surname, age, email } = req.body;
 
-        const result = await connection.execute(`UPDATE alumno
+        const alumnos = await connection.execute(`UPDATE alumno
         SET nombre = :1,
         apellido_pat = :2,
         apellido_mat = :3,
         edad = :4,
-        correo_electronico = :8,
-        al_id_direccion= :5,
-        al_id_sexo = :6 
-        where id_alumno = :7`, [name, lastname, surname, age, email, id_dir, id_sex, uid], {
+        correo_electronico = :8
+        where id_alumno = :7`, [name, lastname, surname, age, email, uid], {
             autoCommit: true
         });
         res.json({
@@ -145,7 +145,7 @@ const eliminarAlumno = async(req, res) => {
     try {
         connection = await oracledb.getConnection(dbConfig);
 
-        const result = await connection.execute(
+        const alumnos = await connection.execute(
             `delete from alumno where id_alumno =:id`, [uid], { autoCommit: true }
 
         );
