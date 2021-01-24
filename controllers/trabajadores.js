@@ -24,7 +24,7 @@ const getTrabajador = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select id_empleado , nombre, apellido_mat, edad,correo_electronico, departamento
+            `select id_empleado , nombre,apellido_pat, apellido_mat, edad,correo_electronico, departamento
             from empleado`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
@@ -101,7 +101,7 @@ const actualizarEmpleado = async(req, res) => {
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, dep, email, id_dir, id_sex, id_turno } = req.body;
+        const { NOMBRE, APELLIDO_PAT, APELLIDO_MAT, EDAD, CORREO_ELECTRONICO, DEPARTAMENTO } = req.body;
 
         const result = await connection.execute(`UPDATE empleado
         SET nombre = :1,
@@ -109,11 +109,8 @@ const actualizarEmpleado = async(req, res) => {
         apellido_mat = :3,
         edad = :4,
         departamento = :9,
-        correo_electronico = :8,
-        emp_id_direccion= :5,
-        emp_id_sexo = :6 ,
-        emp_id_turno = :10
-        where id_empleado = :7`, [name, lastname, surname, age, dep, email, id_dir, id_sex, id_turno, uid], {
+        correo_electronico = :8
+        where id_empleado = :7`, [NOMBRE, APELLIDO_PAT, APELLIDO_MAT, EDAD, DEPARTAMENTO, CORREO_ELECTRONICO, uid], {
             autoCommit: true
         });
         res.json({

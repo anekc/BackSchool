@@ -107,7 +107,7 @@ const actulizarAlumno = async(req, res) => {
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, email } = req.body;
+        const { NOMBRE, APELLIDO_PAT, APELLIDO_MAT, EDAD, CORREO_ELECTRONICO } = req.body;
 
         const alumnos = await connection.execute(`UPDATE alumno
         SET nombre = :1,
@@ -115,7 +115,7 @@ const actulizarAlumno = async(req, res) => {
         apellido_mat = :3,
         edad = :4,
         correo_electronico = :8
-        where id_alumno = :7`, [name, lastname, surname, age, email, uid], {
+        where id_alumno = :7`, [NOMBRE, APELLIDO_PAT, APELLIDO_MAT, EDAD, CORREO_ELECTRONICO, uid], {
             autoCommit: true
         });
         res.json({

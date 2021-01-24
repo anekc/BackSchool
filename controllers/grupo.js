@@ -24,8 +24,11 @@ const getGrupo = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select grupo
-            from grupo`);
+            `select id_grupo,grupo, nombre_carrera, numero_semestre, nombre_turno  from 
+            grupo 
+            join carrera on id_carrera = gr_id_carrera
+            join semestre on id_semestre = gr_id_semestre
+            join turno on id_turno = gr_id_turno`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
             ok: true,

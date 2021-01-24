@@ -24,7 +24,7 @@ const getProfesor = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select id_profesor, nombre, apellido_mat, edad, correo_electronico
+            `select id_profesor, nombre, apellido_pat, apellido_mat, edad, correo_electronico
             from profesor`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
@@ -104,17 +104,15 @@ const actulizarProfesor = async(req, res) => {
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { name, lastname, surname, age, email, id_dir, id_sex } = req.body;
+        const { NOMBRE, APELLIDO_PAT, APELLIDO_MAT, EDAD, CORREO_ELECTRONICO } = req.body;
 
         const result = await connection.execute(`UPDATE profesor
         SET nombre = :1,
         apellido_pat = :2,
         apellido_mat = :3,
         edad = :4,
-        correo_electronico = :8,
-        pr_id_direccion= :5,
-        pr_id_sexo = :6 
-        where id_profesor = :7`, [name, lastname, surname, age, email, id_dir, id_sex, uid], {
+        correo_electronico = :8
+        where id_profesor = :7`, [NOMBRE, APELLIDO_PAT, APELLIDO_MAT, EDAD, CORREO_ELECTRONICO, uid], {
             autoCommit: true
         });
         res.json({

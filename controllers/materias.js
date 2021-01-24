@@ -24,7 +24,7 @@ const getMaterias = async(req, res) => {
             // from alumno where nombre = :name`, ['Alejandro']);
 
             // consulta general
-            `select nombre_materia
+            `select id_materia, nombre_materia, mat_id_cal
             from materia`);
         // respuesta de la base de datos en formato json
         console.log(res.json({
@@ -58,7 +58,7 @@ const addMateria = async(req, res) => {
         // variables sql y binds para ejecucion
         const { nombre_materia, id_cal } = req.body;
         sql = `BEGIN
-        agregarMateria(:n,:id_cal);
+        agregarMaterias(:n,:id_cal);
         END;`;
         binds = {
             n: nombre_materia,
@@ -101,12 +101,11 @@ const actulizarMateria = async(req, res) => {
     const uid = req.params.id;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const { nombre_materia, id_cal } = req.body;
+        const { NOMBRE_MATERIA } = req.body;
 
         const result = await connection.execute(`UPDATE materia
-        SET nombre_materia = :1,
-        mat_id_cal = :2
-        where id_materia = :3`, [nombre_materia, id_cal, uid], {
+        SET nombre_materia = :1
+        where id_materia = :3`, [NOMBRE_MATERIA, uid], {
             autoCommit: true
         });
         res.json({
